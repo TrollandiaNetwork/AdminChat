@@ -92,7 +92,6 @@ public class ChatManager {
         if(chatEnabledPlayers.contains(player))
             throw new ChatAlreadyEnabledException("La chat è già abilitata!");
         chatEnabledPlayers.add(player);
-        toggledPlayers.add(player);
     }
 
     public void disableChat(Player player) throws ChatAlreadyDisabledException {
@@ -121,7 +120,7 @@ public class ChatManager {
         consoleTranscript = true;
     }
 
-    private boolean isToggled(Player player) {
+    public boolean isToggled(Player player) {
         return toggledPlayers.contains(player);
     }
 
@@ -132,5 +131,9 @@ public class ChatManager {
 
     public boolean hasChatEnabled(Player player) {
         return chatEnabledPlayers.contains(player);
+    }
+
+    public boolean getConsoleTranscript() {
+        return consoleTranscript;
     }
 }

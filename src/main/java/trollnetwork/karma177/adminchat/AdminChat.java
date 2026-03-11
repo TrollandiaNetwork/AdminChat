@@ -8,6 +8,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import net.kyori.adventure.text.Component;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -23,6 +24,7 @@ import com.velocitypowered.api.command.CommandMeta;
 )
 public class AdminChat {
 
+    private String version = "1.0-SNAPSHOT";
     private final ProxyServer server;
     private final Logger logger;
     private final ChatManager chatManager;
@@ -46,7 +48,7 @@ public class AdminChat {
                 .aliases("a")
                 .plugin(this)
                 .build();
-        commandManager.register(commandMeta, new ChatCommand(chatManager));
+        commandManager.register(commandMeta, new ChatCommand(chatManager, this));
 
         // /stafflist
         CommandMeta staffListMeta = commandManager.metaBuilder("stafflist")
@@ -95,7 +97,7 @@ public class AdminChat {
     public void onPlayerChat(PlayerChatEvent event) {
         Player player = event.getPlayer();
         // Se il giocatore ha l'admin chat togglata e ha il permesso
-        if (PermissionChecker.hasStaffChatPermission(player) && chatManager.hasChatEnabled(player)) {
+        if (PermissionChecker.hasStaffChatPermission(player) && chatManager.hasChatEnabled(player) && chatManager.isToggled(player)) {
             event.setResult(PlayerChatEvent.ChatResult.denied()); // Blocchiamo il messaggio originale dalla chat pubblica
             Component formattedMsg = ChatManager.formatStaffMessage(player.getUsername(), event.getMessage()); 
             chatManager.broadcastStaffMessage(formattedMsg); // E lo inoltriamo allo staff 
@@ -109,4 +111,10 @@ public class AdminChat {
     public Logger getLogger() {
         return logger;
     }
+
+    public @NotNull String getDescription() {
+        return "Made by Karma177. Version: "+this.version;
+    }
+
+
 }
