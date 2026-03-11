@@ -2,6 +2,7 @@ package trollnetwork.karma177.adminchat;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -63,6 +64,7 @@ public class AdminChat {
         Player player = event.getPlayer();
         if (PermissionChecker.hasStaffChatPermission(player)) {
             chatManager.addStaff(player);
+            chatManager.notifyLogin(player);
         }
     }
 
@@ -87,11 +89,14 @@ public class AdminChat {
     }
     */
 
-    // QUESTO COMANDO È INUTILE! Utilizzo "Lazy Update"
-    /* @Subscribe
+    
+    @Subscribe
     public void onDisconnect(DisconnectEvent event) {
-        chatManager.removeStaff(event.getPlayer());
-    }*/ 
+        if(PermissionChecker.hasStaffChatPermission(event.getPlayer())){
+            chatManager.removeStaff(event.getPlayer());
+            chatManager.notifyLogout(event.getPlayer());
+        }
+    }
 
     @Subscribe
     public void onPlayerChat(PlayerChatEvent event) {

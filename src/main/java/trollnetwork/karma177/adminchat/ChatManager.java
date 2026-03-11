@@ -33,6 +33,18 @@ public class ChatManager {
             .append(Component.text(message, NamedTextColor.AQUA));
     }
 
+    private static Component formatLoginMessage(String user){
+        return Component.text("[STAFF] ", NamedTextColor.AQUA)
+            .append(Component.text("+ ", NamedTextColor.GREEN))
+            .append(Component.text(user, NamedTextColor.AQUA));
+    }
+
+    private static Component formatLogoutMessage(String user){
+        return Component.text("[STAFF] ", NamedTextColor.AQUA)
+            .append(Component.text("- ", NamedTextColor.RED))
+            .append(Component.text(user, NamedTextColor.AQUA));
+    }
+
     public void cacheUpdate(){
         staffCache.forEach( 
             (staff) -> {
@@ -110,6 +122,14 @@ public class ChatManager {
         cacheUpdate();
         staffCache.forEach( (staff) -> { if(chatEnabledPlayers.contains(staff)) staff.sendMessage(message); });            
         if(consoleTranscript) plugin.getServer().getConsoleCommandSource().sendMessage(message);
+    }
+
+    public void notifyLogin(Player player){
+        broadcastStaffMessage(formatLoginMessage(player.getUsername()));
+    }
+
+    public void notifyLogout(Player player){
+        broadcastStaffMessage(formatLogoutMessage(player.getUsername()));
     }
 
     public void disableConsoleTranscript(){
