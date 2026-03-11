@@ -24,7 +24,6 @@ public class ChatManager {
     public ChatManager(AdminChat plugin) {
         this.plugin = plugin;
     }
-    
 
     public static Component formatStaffMessage(String sender, String message) {
         String senderName = (sender != null) ? sender : "CONSOLE";

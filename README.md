@@ -59,4 +59,5 @@ Il cuore moderno del plugin si basa su queste 3 precise collection in `Concurren
 - [ ] Refactor Codice
 - [ ] Riformattazione estetica dei messaggi in ingresso/uscita per farla matchare al 100% con lo stile e i colori della chat del network principale.
 - [x] Creazione del sistema di alert (Join e Quit) per notificare alla `staffCache` l'accesso al proxy di un membro dello staff in tempo reale.
+  - [ ] Filtrare gli utenti per-modalita'
 
