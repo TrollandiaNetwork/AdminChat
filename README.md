@@ -62,4 +62,5 @@ Il cuore moderno del plugin si basa su queste 3 precise collection in `Concurren
 - [x] Creazione del sistema di alert (Join e Quit) per notificare alla `staffCache` l'accesso al proxy di un membro dello staff in tempo reale.
   - [ ] Filtrare gli utenti per-modalita'
 - [ ] Creare branch senza toggle per incoming messages
+- [ ] Riscrittura readme
 
