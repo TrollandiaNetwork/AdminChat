@@ -33,4 +33,13 @@ public class PermissionChecker {
     public static Tristate hasPermissionForFunction(PermissionFunction function) {
         return function.getPermissionValue("adminchat.staffchat");
     }
+
+    /**
+     * Controlla se un giocatore che effettua il comando ha il permesso per ricaricare la configurazione del plugin.
+     * @param invocation L'invocazione del comando da verificare.
+     * @return true se il giocatore ha il permesso, false altrimenti.
+     */
+    public static boolean hasReloadPermission(Invocation invocation) {
+        return invocation.source().hasPermission("adminchat.reload");
+    }
 }

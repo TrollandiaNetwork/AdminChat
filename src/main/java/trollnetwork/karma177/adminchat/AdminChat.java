@@ -8,18 +8,18 @@ import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import net.kyori.adventure.text.Component;
-
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import java.nio.file.Path;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandMeta;
 
 @Plugin(
         id = "adminchat",
         name = "AdminChat",
-        version = "1.0-SNAPSHOT",
+        version = "1.1-SNAPSHOT",
         description = "Velocity Admin Chat Plugin",
         authors = {"Karma177"}
 )
@@ -29,24 +29,29 @@ public class AdminChat {
     private final ProxyServer server;
     private final Logger logger;
     private final ChatManager chatManager;
+    private final Path dataDirectory;
 
     @Inject
-    public AdminChat(ProxyServer server, Logger logger) {
+    public AdminChat(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
         this.server = server;
         this.logger = logger;
+        this.dataDirectory = dataDirectory;
         this.chatManager = new ChatManager(this);
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         logger.info("AdminChat plugin initialized!");
-        
+        // Carica messaggi (o da file o da risorse interne)
+        Messages.init(dataDirectory.toString()+"/messages.yml", this);
+        logger.info("Loading messages from: " + dataDirectory.toString()+"/messages.yml");
+
         // Registrazione dei comandi
         CommandManager commandManager = server.getCommandManager();
         
         // /adminchat (alias /a)
         CommandMeta commandMeta = commandManager.metaBuilder("adminchat")
-                .aliases("a")
+                .aliases("a","aa" )
                 .plugin(this)
                 .build();
         commandManager.register(commandMeta, new ChatCommand(chatManager, this));
@@ -109,6 +114,11 @@ public class AdminChat {
         }
     }
 
+    public void reloadMessages() {
+        Messages.init(dataDirectory.toString()+"/messages.yml", this);
+        logger.info("Configuration reloaded.");
+    }
+
     public ProxyServer getServer() {
         return server;
     }
@@ -117,9 +127,7 @@ public class AdminChat {
         return logger;
     }
 
-    public @NotNull String getDescription() {
+    public String getDescription() {
         return "Made by Karma177. Version: "+this.version;
     }
-
-
 }

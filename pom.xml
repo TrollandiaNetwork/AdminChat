@@ -31,6 +31,19 @@
             <version>3.3.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <!-- YAML parsing for messages config -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.33</version>
+        </dependency>
+
+        <!-- Adventure legacy serializer to convert & color codes to Components -->
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-text-serializer-legacy</artifactId>
+            <version>4.14.0</version>
+        </dependency>
     </dependencies>
 
     <build>

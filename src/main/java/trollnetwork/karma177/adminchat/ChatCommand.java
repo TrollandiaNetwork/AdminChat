@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.ArrayList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import trollnetwork.karma177.adminchat.Exceptions.ChatAlreadyDisabledException;
-import trollnetwork.karma177.adminchat.Exceptions.ChatAlreadyEnabledException;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class ChatCommand implements SimpleCommand {
 
@@ -20,17 +19,31 @@ public class ChatCommand implements SimpleCommand {
         this.plugin = plugin;
     }
 
+    private Component toComponent(String message) {
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(message);
+    }
+
+    private void sendHelp(CommandSource source, Invocation invocation) {
+        source.sendMessage(toComponent(Messages.get("usage_adminchat_quick")));
+        source.sendMessage(toComponent(Messages.get("usage_adminchat_help")));
+        source.sendMessage(toComponent(Messages.get("usage_adminchat_enable")));
+        source.sendMessage(toComponent(Messages.get("usage_adminchat_disable")));
+        source.sendMessage(toComponent(Messages.get("usage_adminchat_toggle")));
+        source.sendMessage(toComponent(Messages.get("usage_adminchat_version")));
+        if (PermissionChecker.hasReloadPermission(invocation)) {
+            source.sendMessage(toComponent(Messages.get("usage_adminchat_reload")));
+        }
+    }
+
     @Override
     public void execute(Invocation invocation) {
         if(!PermissionChecker.hasStaffChatPermission(invocation)) {
-            invocation.source().sendMessage(Component.text("Non hai il permesso per usare questo comando.", NamedTextColor.RED));
+            invocation.source().sendMessage(toComponent(Messages.get("no_permission")));
             return;
         }
 
-
         CommandSource source = invocation.source();
         String[] args = invocation.arguments();
-
 
         if(source instanceof Player && !chatManager.isCached((Player) source)) {
             chatManager.addStaff((Player) source);
@@ -38,57 +51,90 @@ public class ChatCommand implements SimpleCommand {
 
         switch(args.length) {
             case 0 -> {
-                if (invocation.alias().equalsIgnoreCase("adminchat")){
-                    source.sendMessage(Component.text(this.plugin.getDescription(), NamedTextColor.DARK_AQUA));
-                    source.sendMessage(Component.text("Uso: /adminchat <enable | disable | toggle>", NamedTextColor.DARK_AQUA));
-                    return;
-                }
-
-                chatToggle(source); // /a
-            }
-            case 1 -> {
-                if (invocation.alias().equalsIgnoreCase("adminchat")){
-                    switch(args[0].toLowerCase()) {
-                        case "enable" -> enableStaffChat(source);
-                        case "disable" -> disableStaffChat(source);
-                        case "toggle" -> chatToggle(source);
-                        default -> {
-                            source.sendMessage(Component.text("Uso: /adminchat <enable | disable | toggle>", NamedTextColor.RED));
+                switch(invocation.alias().toLowerCase()){
+                    case "adminchat" -> {
+                            sendHelp(source, invocation);
+                            return;
                         }
+                    case "a" -> {
+                            source.sendMessage(toComponent(Messages.get("usage_a")));
+                            return;
+                        }
+                    case "aa" -> {
+                        chatToggle(source); // /aa senza argomenti funziona come toggle rapido
+                        return;
                     }
                 }
-                else quickMessage(source, args); // /a <messaggio>
+            }
+            case 1 -> {
+                switch(invocation.alias().toLowerCase()){
+                    case "adminchat" -> {
+                        switch(args[0].toLowerCase()) {
+                            case "enable" -> enableStaffChat(source);
+                            case "disable" -> disableStaffChat(source);
+                            case "toggle" -> chatToggle(source);
+                            case "reload" -> {
+                                if (PermissionChecker.hasReloadPermission(invocation)) 
+                                    reloadPlugin(source);
+                                else
+                                    source.sendMessage(toComponent(Messages.get("no_permission")));
+                            }
+                            case "version" -> {
+                                source.sendMessage(Component.text(this.plugin.getDescription(), NamedTextColor.GRAY));
+                            }
+                            case "help" -> {
+                                sendHelp(source, invocation);
+                            }
+                            default -> {
+                                sendHelp(source, invocation);
+                            }
+                        }
+                    }
+                    case "a" -> {
+                        quickMessage(source, args); // /a <messaggio>
+                    }
+                    case "aa" -> {
+                        chatToggle(source); // /aa senza argomenti funziona come toggle rapido
+                    }
+                }
             }
             default -> {
-                if(invocation.alias().equalsIgnoreCase("adminchat")){
-                    source.sendMessage(Component.text("Uso: /adminchat <enable | disable | toggle>", NamedTextColor.RED));
-                    return;
+                switch(invocation.alias().toLowerCase()){
+                    case "adminchat" -> {
+                        sendHelp(source, invocation);
+                        return;
+                    }
+                    case "a" -> {
+                        quickMessage(source, args); // /a <messaggio>        
+                    }
+                    case "aa" -> {
+                        chatToggle(source); // /aa con argomenti funziona comunque come toggle rapido
+                    }
                 }
-                quickMessage(source, args); // /a <messaggio
             }
         }
+    }
+
+    private void reloadPlugin(CommandSource source) {
+        chatManager.reload();
+        plugin.reloadMessages();
+        source.sendMessage(toComponent(Messages.get("adminchat.reloaded")));
     }
 
     private void disableStaffChat(CommandSource source) {
         Player p = source instanceof Player player ? player : null;
         if(p == null) {
             if(!chatManager.getConsoleTranscript()) {
-                source.sendMessage(Component.text("La console ha già la StaffChat disabilitata.", NamedTextColor.RED));
+                source.sendMessage(toComponent(Messages.get("console_transcript_already_disabled")));
                 return;
             }
-
             chatManager.disableConsoleTranscript();
-            source.sendMessage(Component.text("Chat staff disabilitata per la console.", NamedTextColor.RED));
+            source.sendMessage(toComponent(Messages.get("console_transcript_disabled")));
             return;
         }
         
-        try {
-            chatManager.disableChat(p);
-        } catch (ChatAlreadyDisabledException e) {
-            source.sendMessage(Component.text("La StaffChat era già disabilitata.", NamedTextColor.RED));
-            return;
-        }
-        source.sendMessage(Component.text("Hai disabilitato i messaggi (in entrata) della StaffChat!", NamedTextColor.RED));
+        chatManager.disableChat(p);
+        //source.sendMessage(toComponent(Messages.get("adminchat.disabled_player"))); unused?
 
     }
 
@@ -96,22 +142,17 @@ public class ChatCommand implements SimpleCommand {
         Player p = source instanceof Player player ? player : null;
         if(p == null) {
             if(chatManager.getConsoleTranscript()) {
-                source.sendMessage(Component.text("La console ha già la StaffChat abilitata.", NamedTextColor.AQUA));
+                source.sendMessage(toComponent(Messages.get("console_transcript_already_enabled")));
                 return;
             }
 
             chatManager.enableConsoleTranscript();
-            source.sendMessage(Component.text("Chat staff abilitata per la console.", NamedTextColor.AQUA));
+            source.sendMessage(toComponent(Messages.get("console_transcript_enabled")));
             return;
         }
 
-        try {
-            chatManager.enableChat(p);
-        } catch (ChatAlreadyEnabledException e) {
-            source.sendMessage(Component.text("La StaffChat era già abilitata.", NamedTextColor.AQUA));
-            return;
-        }
-        source.sendMessage(Component.text("Hai abilitato i messaggi (in entrata) della StaffChat!", NamedTextColor.AQUA));
+        chatManager.enableChat(p);        
+        //source.sendMessage(toComponent(Messages.get("adminchat.enabled_player"))); unused?
     }
 
 
@@ -121,12 +162,12 @@ public class ChatCommand implements SimpleCommand {
         // Identifichiamo il mittente (se non è un Player, compare come CONSOLE)
         String senderName = (source instanceof Player player) ? player.getUsername() : "CONSOLE";
         if(senderName.equals("CONSOLE") && !chatManager.getConsoleTranscript()) {
-            source.sendMessage(Component.text("La console ha la StaffChat disabilitata. Usa: /adminchat enable", NamedTextColor.RED));
+            source.sendMessage(toComponent(Messages.get("console_transcript_already_disabled")));
             return;
         }
 
         if(source instanceof Player && !chatManager.hasChatEnabled((Player) source)) {
-            source.sendMessage(Component.text("Hai la StaffChat disabilitata. Usa: /adminchat enable per abilitarla.", NamedTextColor.RED));
+            source.sendMessage(toComponent(Messages.get("adminchat.message_when_incoming_disabled"))); 
             return;
         }
 
@@ -137,19 +178,19 @@ public class ChatCommand implements SimpleCommand {
     private void chatToggle(CommandSource source) {
         // Modalità toggle
         if (!(source instanceof Player player)) {
-            source.sendMessage(Component.text("La console non può abilitare la modalità toggle. Usa: /a <messaggio>", NamedTextColor.RED));
+            source.sendMessage(toComponent(Messages.get("console_only_toggle")));
             return;
         }
 
         if(!chatManager.hasChatEnabled(player)) {
-            player.sendMessage(Component.text("Hai la StaffChat disabilitata. Usa: /adminchat enable per abilitarla.", NamedTextColor.RED));
+             source.sendMessage(toComponent(Messages.get("adminchat.disabled_player")));
             return;
         }
 
         if (chatManager.toggleChat(player))
-            player.sendMessage(Component.text("StaffChat abilitata. I tuoi prossimi messaggi verranno inviati solo allo staff.", NamedTextColor.AQUA));
+            player.sendMessage(toComponent(Messages.get("adminchat.toggle_enabled")));
         else
-            player.sendMessage(Component.text("StaffChat disabilitata.", NamedTextColor.RED));
+            player.sendMessage(toComponent(Messages.get("adminchat.toggle_disabled")));
     }
 
     @Override
@@ -167,13 +208,24 @@ public class ChatCommand implements SimpleCommand {
         String[] args = invocation.arguments();
         
         if (args.length == 0) {
-            return List.of("enable", "disable", "toggle");
+            List<String> suggestions = new ArrayList<>();
+            suggestions.add("enable");
+            suggestions.add("disable");
+            suggestions.add("toggle");
+            suggestions.add("version");
+            suggestions.add("help");
+            if (PermissionChecker.hasReloadPermission(invocation))
+                suggestions.add("reload");
+            return suggestions;
         } else if (args.length == 1) {
             String prefix = args[0].toLowerCase();
             List<String> suggestions = new ArrayList<>();
             if ("enable".startsWith(prefix)) suggestions.add("enable");
             if ("disable".startsWith(prefix)) suggestions.add("disable");
             if ("toggle".startsWith(prefix)) suggestions.add("toggle");
+            if ("version".startsWith(prefix)) suggestions.add("version");
+            if ("help".startsWith(prefix)) suggestions.add("help");
+            if ("reload".startsWith(prefix) && PermissionChecker.hasReloadPermission(invocation)) suggestions.add("reload");
             return suggestions;
         }
         

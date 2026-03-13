@@ -2,9 +2,7 @@ package trollnetwork.karma177.adminchat;
 
 import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import trollnetwork.karma177.adminchat.Exceptions.ChatAlreadyDisabledException;
-import trollnetwork.karma177.adminchat.Exceptions.ChatAlreadyEnabledException;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.Set;
 import java.util.List;
@@ -25,23 +23,26 @@ public class ChatManager {
         this.plugin = plugin;
     }
 
+    private static Component toComponent(String message) {
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(message);
+    }
+
     public static Component formatStaffMessage(String sender, String message) {
         String senderName = (sender != null) ? sender : "CONSOLE";
-        return Component.text("[STAFF] ", NamedTextColor.AQUA)
-            .append(Component.text(senderName + ": ", NamedTextColor.AQUA))
-            .append(Component.text(message, NamedTextColor.AQUA));
+        String format = Messages.get("staff_message_format");
+        return toComponent(format
+            .replace("{sender}", senderName)
+            .replace("{message}", message));
     }
 
     private static Component formatLoginMessage(String user){
-        return Component.text("[STAFF] ", NamedTextColor.AQUA)
-            .append(Component.text("+ ", NamedTextColor.GREEN))
-            .append(Component.text(user, NamedTextColor.AQUA));
+        String format = Messages.get("staff_notify_join");
+        return toComponent(format.replace("{player}", user));
     }
 
     private static Component formatLogoutMessage(String user){
-        return Component.text("[STAFF] ", NamedTextColor.AQUA)
-            .append(Component.text("- ", NamedTextColor.RED))
-            .append(Component.text(user, NamedTextColor.AQUA));
+        String format = Messages.get("staff_notify_quit");
+        return toComponent(format.replace("{player}", user));
     }
 
     public void cacheUpdate(){
@@ -59,22 +60,15 @@ public class ChatManager {
     public void addStaff(Player player) {
         if(isCached(player))
             return;
-        try{
-            enableChat(player);
-        }catch(ChatAlreadyEnabledException e){ 
-            plugin.getLogger().warn("Tentativo di abilitare la chat per " + player.getUsername() + " ma era già abilitata.");
-        }
+       
+        enableChatSilent(player);
         staffCache.add(player);
     }
 
     public void removeStaff(Player player) {
         if(!isCached(player))
             return;
-        try{
-            disableChat(player);
-        }catch(ChatAlreadyDisabledException e){
-            plugin.getLogger().warn("Tentativo di disabilitare la chat per " + player.getUsername() + " ma era già disabilitata.");
-        }
+        disableChat(player);
         staffCache.remove(player);
         toggledPlayers.remove(player);
     }
@@ -99,18 +93,29 @@ public class ChatManager {
         }
     }
 
-    public void enableChat(Player player) throws ChatAlreadyEnabledException {
-        if(chatEnabledPlayers.contains(player))
-            throw new ChatAlreadyEnabledException("La chat è già abilitata!");
+    public void enableChat(Player player){
+        if(chatEnabledPlayers.contains(player)){
+            player.sendMessage(toComponent(Messages.get("adminchat.already_enabled")));
+            return;
+        }
+        chatEnabledPlayers.add(player);
+        //player.sendMessage(toComponent(Messages.get("adminchat.toggle_enabled")));
+    }
+
+    private void enableChatSilent(Player player){
         chatEnabledPlayers.add(player);
     }
 
-    public void disableChat(Player player) throws ChatAlreadyDisabledException {
-        if(!chatEnabledPlayers.contains(player))
-            throw new ChatAlreadyDisabledException("La chat è già disabilitata!");
+    public void disableChat(Player player){
+        if(!chatEnabledPlayers.contains(player)){
+            player.sendMessage(toComponent(Messages.get("adminchat.already_disabled")));
+            return;
+        }
+
         chatEnabledPlayers.remove(player);
-        if(toggledPlayers.remove(player))
-            player.sendMessage(Component.text("La modalità toggle è stata disabilitata poiché la StaffChat è stata disabilitata.", NamedTextColor.RED));
+        toggledPlayers.remove(player);
+        //if(toggledPlayers.remove(player))
+            //player.sendMessage(toComponent(Messages.get("adminchat.toggle_disabled")));
     }
 
     /**
@@ -147,9 +152,12 @@ public class ChatManager {
         return staffCache.contains(player);
     }
 
-
     public boolean hasChatEnabled(Player player) {
         return chatEnabledPlayers.contains(player);
+    }
+
+    public void reload(){
+        this.toggledPlayers.clear();
     }
 
     public boolean getConsoleTranscript() {
