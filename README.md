@@ -1,6 +1,10 @@
 # AdminChat - TrollNetwork
 **AdminChat** è un plugin Velocity leggero ed efficiente per la gestione della Staff Chat tra i membri dell'amministrazione.
 
+## Permessi
+- `adminchat.staffchat`: Permesso base per visualizzare la chat, usare i comandi e ricevere le notifiche di join/quit.
+- `adminchat.reload`: Permesso per ricaricare la configurazione del plugin tramite `/adminchat reload`.
+
 ## Comandi disponibili
 - **`/adminchat <enable|disable|toggle>`** (alias base)
   Gestisce la modalità di ascolto e scrittura per la tua sessione:
