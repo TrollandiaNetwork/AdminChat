@@ -30,8 +30,6 @@ public class ChatCommand implements SimpleCommand {
     private void sendHelp(CommandSource source, Invocation invocation) {
         source.sendMessage(toComponent(Messages.get("usage_adminchat_quick")));
         source.sendMessage(toComponent(Messages.get("usage_adminchat_help")));
-        source.sendMessage(toComponent(Messages.get("usage_adminchat_enable")));
-        source.sendMessage(toComponent(Messages.get("usage_adminchat_disable")));
         source.sendMessage(toComponent(Messages.get("usage_adminchat_toggle")));
         source.sendMessage(toComponent(Messages.get("usage_adminchat_version")));
         if (PermissionChecker.hasReloadPermission(invocation)) {
@@ -74,8 +72,6 @@ public class ChatCommand implements SimpleCommand {
                 switch(invocation.alias().toLowerCase()){
                     case "adminchat" -> {
                         switch(args[0].toLowerCase()) {
-                            case "enable" -> enableStaffChat(source);
-                            case "disable" -> disableStaffChat(source);
                             case "toggle" -> chatToggle(source);
                             case "reload" -> {
                                 if (PermissionChecker.hasReloadPermission(invocation)) 
@@ -125,59 +121,14 @@ public class ChatCommand implements SimpleCommand {
         source.sendMessage(toComponent(Messages.get("adminchat.reloaded")));
     }
 
-    private void disableStaffChat(CommandSource source) {
-        Player p = source instanceof Player player ? player : null;
-        if(p == null) {
-            if(!chatManager.getConsoleTranscript()) {
-                source.sendMessage(toComponent(Messages.get("console_transcript_already_disabled")));
-                return;
-            }
-            chatManager.disableConsoleTranscript();
-            source.sendMessage(toComponent(Messages.get("console_transcript_disabled")));
-            return;
-        }
-        
-        chatManager.disableChat(p);
-        //source.sendMessage(toComponent(Messages.get("adminchat.disabled_player"))); unused?
-
-    }
-
-    private void enableStaffChat(CommandSource source) {
-        Player p = source instanceof Player player ? player : null;
-        if(p == null) {
-            if(chatManager.getConsoleTranscript()) {
-                source.sendMessage(toComponent(Messages.get("console_transcript_already_enabled")));
-                return;
-            }
-
-            chatManager.enableConsoleTranscript();
-            source.sendMessage(toComponent(Messages.get("console_transcript_enabled")));
-            return;
-        }
-
-        chatManager.enableChat(p);        
-        //source.sendMessage(toComponent(Messages.get("adminchat.enabled_player"))); unused?
-    }
-
 
     
     private void quickMessage(CommandSource source, String[] args) {
         String message = String.join(" ", args);
-        // Identifichiamo il mittente (se non è un Player, compare come CONSOLE)
-        String senderName = (source instanceof Player player) ? player.getUsername() : "CONSOLE";
-        if(senderName.equals("CONSOLE") && !chatManager.getConsoleTranscript()) {
-            source.sendMessage(toComponent(Messages.get("console_transcript_already_disabled")));
-            return;
-        }
-
-        Player player = (source instanceof Player) ? (Player) source : null;
         
-        if(player != null && !chatManager.hasChatEnabled(player)) {
-            source.sendMessage(toComponent(Messages.get("adminchat.message_when_incoming_disabled"))); 
-            return;
-        }
-
+        Player player = (source instanceof Player) ? (Player) source : null;
         String serverName = (player != null) ? ChatManager.getServerName(player) : "Proxy";
+        
         Component formattedMsg = ChatManager.formatStaffMessage(player, serverName, message);
         chatManager.broadcastStaffMessage(formattedMsg);
     }
@@ -186,11 +137,6 @@ public class ChatCommand implements SimpleCommand {
         // Modalità toggle
         if (!(source instanceof Player player)) {
             source.sendMessage(toComponent(Messages.get("console_only_toggle")));
-            return;
-        }
-
-        if(!chatManager.hasChatEnabled(player)) {
-             source.sendMessage(toComponent(Messages.get("adminchat.disabled_player")));
             return;
         }
 
@@ -216,8 +162,6 @@ public class ChatCommand implements SimpleCommand {
         
         if (args.length == 0) {
             List<String> suggestions = new ArrayList<>();
-            suggestions.add("enable");
-            suggestions.add("disable");
             suggestions.add("toggle");
             suggestions.add("version");
             suggestions.add("help");
@@ -227,8 +171,6 @@ public class ChatCommand implements SimpleCommand {
         } else if (args.length == 1) {
             String prefix = args[0].toLowerCase();
             List<String> suggestions = new ArrayList<>();
-            if ("enable".startsWith(prefix)) suggestions.add("enable");
-            if ("disable".startsWith(prefix)) suggestions.add("disable");
             if ("toggle".startsWith(prefix)) suggestions.add("toggle");
             if ("version".startsWith(prefix)) suggestions.add("version");
             if ("help".startsWith(prefix)) suggestions.add("help");

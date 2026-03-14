@@ -17,8 +17,6 @@ public class ChatManager {
     // Utilizziamo un Set thread-safe per via del multithreading nativo di Velocity
     private final Set<Player> staffCache = ConcurrentHashMap.newKeySet();
     private final Set<Player> toggledPlayers = ConcurrentHashMap.newKeySet();
-    private final Set<Player> chatEnabledPlayers = ConcurrentHashMap.newKeySet();
-    private boolean consoleTranscript = true;
     
     private final AdminChat plugin;
 
@@ -76,14 +74,12 @@ public class ChatManager {
         if(isCached(player))
             return;
        
-        enableChatSilent(player);
         staffCache.add(player);
     }
 
     public void removeStaff(Player player) {
         if(!isCached(player))
             return;
-        disableChat(player);
         staffCache.remove(player);
         toggledPlayers.remove(player);
     }
@@ -120,39 +116,14 @@ public class ChatManager {
         }
     }
 
-    public void enableChat(Player player){
-        if(chatEnabledPlayers.contains(player)){
-            player.sendMessage(toComponent(Messages.get("adminchat.already_enabled")));
-            return;
-        }
-        chatEnabledPlayers.add(player);
-        //player.sendMessage(toComponent(Messages.get("adminchat.toggle_enabled")));
-    }
-
-    private void enableChatSilent(Player player){
-        chatEnabledPlayers.add(player);
-    }
-
-    public void disableChat(Player player){
-        if(!chatEnabledPlayers.contains(player)){
-            player.sendMessage(toComponent(Messages.get("adminchat.already_disabled")));
-            return;
-        }
-
-        chatEnabledPlayers.remove(player);
-        toggledPlayers.remove(player);
-        //if(toggledPlayers.remove(player))
-            //player.sendMessage(toComponent(Messages.get("adminchat.toggle_disabled")));
-    }
-
     /**
      * Invia un messaggio a tutti gli staffer in cache.
      * "lazy update": se il player non è più attivo, lo toglie.
      */
     public void broadcastStaffMessage(Component message) {
         cacheUpdate();
-        staffCache.forEach( (staff) -> { if(chatEnabledPlayers.contains(staff)) staff.sendMessage(message); });            
-        if(consoleTranscript) plugin.getServer().getConsoleCommandSource().sendMessage(message);
+        staffCache.forEach( (staff) -> { staff.sendMessage(message); });            
+        plugin.getServer().getConsoleCommandSource().sendMessage(message);
     }
 
     public void notifyLogin(Player player){
@@ -163,14 +134,6 @@ public class ChatManager {
         broadcastStaffMessage(formatLogoutMessage(player.getUsername()));
     }
 
-    public void disableConsoleTranscript(){
-        consoleTranscript = false;
-    }
-
-    public void enableConsoleTranscript(){
-        consoleTranscript = true;
-    }
-
     public boolean isToggled(Player player) {
         return toggledPlayers.contains(player);
     }
@@ -179,15 +142,7 @@ public class ChatManager {
         return staffCache.contains(player);
     }
 
-    public boolean hasChatEnabled(Player player) {
-        return chatEnabledPlayers.contains(player);
-    }
-
     public void reload(){
         this.toggledPlayers.clear();
-    }
-
-    public boolean getConsoleTranscript() {
-        return consoleTranscript;
     }
 }

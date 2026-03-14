@@ -4,16 +4,8 @@
 # General
 no_permission: "&cNon hai il permesso per usare questo comando."
 console_only_toggle: "&c[&6AC&c]&7 La console &cnon può abilitare &7la modalità toggle. Usa: /a <messaggio>"
-console_transcript_already_disabled: "&c[&6AC&c]&7 Messaggi in entrata StaffChat &cdisabilitata&7. Usa: /adminchat enable"
-console_transcript_already_enabled: "&c[&6AC&c]&7 La console ha la StaffChat &aabilitata&7."
-console_transcript_disabled: "&c[&6AC&c]&7 Hai &cdisabilitato &7i messaggi (in entrata) della StaffChat!"
-console_transcript_enabled: "&c[&6AC&c]&7 Hai &aabilitato &7i messaggi (in entrata) della StaffChat!"
 
 # AdminChat command feedback
-adminchat.enabled_player: "&c[&6AC&c]&7 Hai &aabilitato i messaggi (in &ientrata&7) della StaffChat!"
-adminchat.disabled_player: "&c[&6AC&c]&7 Hai &cdisabilitato i messaggi (in &ientrata&7) della StaffChat!"
-adminchat.already_enabled: "&c[&6AC&c]&7 Chat solo staff &aattivata&7."
-adminchat.already_disabled: "&c[&6AC&c]&7 Chat solo staff &cdisabilitata&7."
 adminchat.toggle_enabled: "&c[&6AC&c]&7 StaffChat &aabilitata&7."
 adminchat.toggle_disabled: "&c[&6AC&c]&7 StaffChat &cdisabilitata&7."
 adminchat.reloaded: "&aConfigurazione ricaricata con successo!"
@@ -31,15 +23,10 @@ stafflist.entry_server: "&c&l{server} &c[&a{count}&c] | &6{players}"
 staff_notify_join: "&c[&6AC&c]&b {player} &7è &aentrato &7nel server"
 staff_notify_quit: "&c[&6AC&c]&a {player} &7è &cuscito &7dal server"
 
-# Errors
-adminchat.message_when_incoming_disabled: "&c[&6AC&c]&7 I messaggi in entrata della StaffChat sono &cdisabilitati&7."
-
 # Misc
-usage_adminchat_help: "&c[&6AC&c]&7 &b/adminchat [help] &7- Mostra questo messaggio di aiuto."
-usage_adminchat_enable: "&c[&6AC&c]&7 &b/adminchat enable &7- &aAbilita &7i messaggi in arrivo della StaffChat."
-usage_adminchat_disable: "&c[&6AC&c]&7 &b/adminchat disable &7- &cDisabilita &7i messaggi in arrivo della StaffChat."
-usage_adminchat_toggle: "&c[&6AC&c]&7 &b/adminchat toggle &7- &aAttiva&7/&cDisattiva &7la chat automatica (o usa &b/aa&7)."
 usage_adminchat_quick: "&c[&6AC&c]&7 &b/a <messaggio> &7- Per inviare un messaggio veloce."
+usage_adminchat_help: "&c[&6AC&c]&7 &b/adminchat [help] &7- Mostra questo messaggio di aiuto."
+usage_adminchat_toggle: "&c[&6AC&c]&7 &b/adminchat toggle &7- &aAttiva&7/&cDisattiva &7la chat automatica (o usa &b/aa&7)."
 usage_adminchat_version: "&c[&6AC&c]&7 &b/adminchat version &7- Mostra la versione del plugin."
 usage_adminchat_reload: "&c[&6AC&c]&7 &b/adminchat reload &7- Ricarica la configurazione."
 usage_a: "&c[&6AC&c]&c /a <messaggio> - No citrullo, devi scrivere qualcosa per mandare un messaggio."

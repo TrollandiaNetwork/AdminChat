@@ -24,13 +24,13 @@ import com.velocitypowered.api.command.CommandMeta;
 @Plugin(
         id = "adminchat",
         name = "AdminChat",
-        version = "1.1-STABLE",
+        version = "1.2-TROLL",
         description = "Velocity Admin Chat Plugin",
         authors = {"Karma177"}
 )
 public class AdminChat {
 
-    private String version = "1.1-STABLE";
+    private String version = "1.2-STABLE";
     private final ProxyServer server;
     private final Logger logger;
     private final ChatManager chatManager;
@@ -49,7 +49,7 @@ public class AdminChat {
         logger.info("AdminChat plugin initialized!");
         // Carica messaggi (o da file o da risorse interne)
         Messages.init(dataDirectory.toString()+"/messages.yml", this);
-        logger.info("Loading messages from: " + dataDirectory.toString()+"/messages.yml");
+        logger.info("Loading messages from: " + dataDirectory.toString()+"\\messages.yml");
 
         // Registrazione dei comandi
         CommandManager commandManager = server.getCommandManager();
@@ -112,15 +112,13 @@ public class AdminChat {
     public void onPlayerChat(PlayerChatEvent event) {
         Player player = event.getPlayer();
         // Se il giocatore ha l'admin chat togglata e ha il permesso
-        if (PermissionChecker.hasStaffChatPermission(player) && chatManager.hasChatEnabled(player) && chatManager.isToggled(player)) {
+        if (PermissionChecker.hasStaffChatPermission(player) && chatManager.isToggled(player)) {
             event.setResult(PlayerChatEvent.ChatResult.denied()); // Blocchiamo il messaggio originale dalla chat pubblica
             String serverName = ChatManager.getServerName(player);
             Component formattedMsg = ChatManager.formatStaffMessage(player, serverName, event.getMessage()); 
             chatManager.broadcastStaffMessage(formattedMsg); // E lo inoltriamo allo staff 
         }
     }
-
-
 
     public void reloadMessages() {
         Messages.init(dataDirectory.toString()+"/messages.yml", this);
