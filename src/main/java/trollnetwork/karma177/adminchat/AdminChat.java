@@ -24,13 +24,13 @@ import com.velocitypowered.api.command.CommandMeta;
 @Plugin(
         id = "adminchat",
         name = "AdminChat",
-        version = "1.2-TROLL",
+        version = "1.3-TROLL",
         description = "Velocity Admin Chat Plugin",
         authors = {"Karma177"}
 )
 public class AdminChat {
 
-    private String version = "1.2-STABLE";
+    private String version = "1.3-TROLL";
     private final ProxyServer server;
     private final Logger logger;
     private final ChatManager chatManager;
@@ -49,7 +49,7 @@ public class AdminChat {
         logger.info("AdminChat plugin initialized!");
         // Carica messaggi (o da file o da risorse interne)
         Messages.init(dataDirectory.toString()+"/messages.yml", this);
-        logger.info("Loading messages from: " + dataDirectory.toString()+"\\messages.yml");
+        logger.info("Caricando messaggi da: " + dataDirectory.toString()+"/messages.yml");
 
         // Registrazione dei comandi
         CommandManager commandManager = server.getCommandManager();
@@ -122,7 +122,7 @@ public class AdminChat {
 
     public void reloadMessages() {
         Messages.init(dataDirectory.toString()+"/messages.yml", this);
-        logger.info("Configuration reloaded.");
+        logger.info("Configurazione ricaricata.");
     }
 
     public ProxyServer getServer() {

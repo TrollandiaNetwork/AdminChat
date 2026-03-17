@@ -62,12 +62,12 @@ public class ChatManager {
         staffCache.forEach( 
             (staff) -> {
                 if(!staff.isActive() || !PermissionChecker.hasStaffChatPermission(staff)) {
-                    plugin.getLogger().info("Rimuovendo " + staff.getUsername() + " dalla cache dello staff (non più attivo o senza permesso)");
+                    plugin.getLogger().info("Rimuovendo " + staff.getUsername() + " dalla cache dello staff.. non si è disconnesso correttamente?");
                     removeStaff(staff);
                 }
             }
         );
-        plugin.getLogger().info("Cache dello staff aggiornata: " + staffCache.size() + " membri in cache, " + toggledPlayers.size() + " con chat togglata");
+        //plugin.getLogger().info("Cache dello staff aggiornata: " + staffCache.size() + " membri in cache, " + toggledPlayers.size() + " con chat togglata");
     }
     
     public void addStaff(Player player) {
